@@ -1,10 +1,12 @@
 # Newer Messages Editor
-(1.3)
+(1.3-mod)
 
 ----------------------------------------------------------------
 
-Support:   http://rvlution.net/forums/  
-On GitHub: https://github.com/RoadrunnerWMC/Newer-Messages-Editor  
+Support:       http://rvlution.net/forums/  
+On GitHub:     https://github.com/RoadrunnerWMC/Newer-Messages-Editor  
+
+Mod On GitHub: https://github.com/wakanameko/Newer-Messages-Editor-1.3-Mod
 
 ----------------------------------------------------------------
 
@@ -35,6 +37,7 @@ You can replace `python3` with the path to python.exe (including "python.exe" at
 
 Developers:
  * RoadrunnerWMC - Developer
+ * @wakanameko2  - modifier
 
 ### Dependencies/Libraries/Resources
 
@@ -52,6 +55,10 @@ See the license file in the distribution for information.
 ----------------------------------------------------------------
 
 ## Changelog
+
+Release 1.3-mod (Feb 23, 2023)
+ * Added a Darkmode
+ * Supported Japanese
 
 Release 1.3 (unreleased)
  * No changes yet

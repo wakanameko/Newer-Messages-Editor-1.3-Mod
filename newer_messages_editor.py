@@ -1,9 +1,9 @@
 #!/usr/bin/python
-# -*- coding: latin-1 -*-
+# -*- coding: utf-8 -*-
 
 # Newer Messages Editor - Edits NewerSMBW's messages.bin
-# Version 1.3
-# Copyright (C) 2013-2014 RoadrunnerWMC
+# Version 1.3-mod
+# Copyright (C) 2013-2014 RoadrunnerWMC, 2023 @wakanameko2
 
 # This file is part of Newer Messages Editor.
 
@@ -30,14 +30,73 @@
 ################################################################
 
 
-version = '1.3'
+version = '1.3-mod'
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 import sys
+import os
 
+#setup
+s = os.getcwd() #get path
+print(s)
+STpath = (f"{s}/data.txt") # get setting data path
+print(STpath)
+SFile = open(STpath, 'r') # open setting file
+lines = SFile.readlines() # read setting file lines
+print (lines)
+# SFileAF = [line.rstrip("\n") for line in lines] # delete this -> '\n'
+# print(SFileAF)
 
+#===========about Setting File(/data.txt)===========#
+#  EN -> MSLANG = 'English'   L -> VMode = 'Light'  #
+#  JP -> MSLANG = 'Japanese'  D -> VMode = 'Dark'   #
+#      example: ENL -> English & Light Mode         #
+#===================================================#
 
+with open(f"{s}/data.txt", "r") as f:
+    for line in f:
+        if "EN" in line:
+            MSLANG = 'English'
+            print('Selected EN!')
+            
+        else:
+            MSLANG = 'Japanese'
+            print('Selected JP!')
 
+with open(f"{s}/data.txt", "r") as f:
+    for line in f:
+        if "L" in line:
+            VMode = 'Light'
+            print('Selected Light!')
+            
+        else:
+            VMode = 'Dark'
+            print('Selected Dark!')
+
+StyleSheet = '''
+QWidget {
+    background-color: #15202B;
+    color: #FEFFFE;
+} 
+QListWidget {
+    background-color: #15202b;
+}
+QGroupBox {
+    background-color: #111111;
+}
+QDialogButtonBox {
+    background-color: #111111;
+}
+QPlainTextEdit {
+    background-color: #15202b;
+}
+QDialog {
+    background-color: #111111;
+}
+QLabel {
+    background-color: #111111;
+}
+'''
 
 ################################################################
 ################################################################
@@ -210,14 +269,20 @@ class MessageViewer(QtWidgets.QWidget):
         self.file = None
 
         # Create the message picker widgets
-        PickerBox = QtWidgets.QGroupBox('Messages')
-        self.picker = self.DNDPicker(self.HandleDragDrop)
-        self.ABtn = QtWidgets.QPushButton('Add')
-        self.RBtn = QtWidgets.QPushButton('Remove')
-
-        # Add some tooltips
-        self.ABtn.setToolTip('<b>Add:</b><br>Adds a message to the end of the file')
-        self.RBtn.setToolTip('<b>Remove:</b><br>Removes the currently selected file')
+        if MSLANG == 'English':
+            PickerBox = QtWidgets.QGroupBox('Messages')
+            self.picker = self.DNDPicker(self.HandleDragDrop)
+            self.ABtn = QtWidgets.QPushButton('Add')
+            self.RBtn = QtWidgets.QPushButton('Remove')
+            self.ABtn.setToolTip('<b>Add:</b><br>Adds a message to the end of the file')
+            self.RBtn.setToolTip('<b>Remove:</b><br>Removes the currently selected file')
+        else:
+            PickerBox = QtWidgets.QGroupBox('メッセージ')
+            self.picker = self.DNDPicker(self.HandleDragDrop)
+            self.ABtn = QtWidgets.QPushButton('追加')
+            self.RBtn = QtWidgets.QPushButton('削除')
+            self.ABtn.setToolTip('<b>追加:</b><br>メッセージを追加します。')
+            self.RBtn.setToolTip('<b>削除:</b><br>選択したメッセージを削除します。')
 
         # Connect them to handlers
         self.picker.currentItemChanged.connect(self.HandleMsgSel)
@@ -237,7 +302,10 @@ class MessageViewer(QtWidgets.QWidget):
         PickerBox.setLayout(L)
 
         # Create the message editor
-        self.MsgBox = QtWidgets.QGroupBox('Message') # assigned to self.MsgBox because the title changes later
+        if MSLANG == 'English':
+            self.MsgBox = QtWidgets.QGroupBox('Message') # assigned to self.MsgBox because the title changes later
+        else:
+            self.MsgBox = QtWidgets.QGroupBox('メッセージ')
         self.edit = MessageEditor()
         self.edit.dataChanged.connect(self.HandleMsgDatChange)
         L = QtWidgets.QVBoxLayout()
@@ -384,9 +452,14 @@ class MessageEditor(QtWidgets.QWidget):
         self.text.setLineWrapMode(self.text.NoWrap)
 
         # Add some tooltips
-        self.id.setToolTip('<b>ID:</b><br>This is the value the Message Box sprite uses to find messages. Make sure you don\'t repeat IDs!')
-        self.title.setToolTip('<b>Title:</b><br>Changes the text which will appear on the top of the message box')
-        self.text.setToolTip('<b>Text:</b><br>Changes the text which will appear inside the main portion of the message box')
+        if MSLANG == 'English':
+            self.id.setToolTip('<b>ID:</b><br>This is the value the Message Box sprite uses to find messages. Make sure you don\'t repeat IDs!')
+            self.title.setToolTip('<b>Title:</b><br>Changes the text which will appear on the top of the message box')
+            self.text.setToolTip('<b>Text:</b><br>Changes the text which will appear inside the main portion of the message box')
+        else:
+            self.id.setToolTip('<b>ID:</b><br>Reggie等でメッセージボックスの文章を検索する際に使用する値です。同じIDを入力しないでください!')
+            self.title.setToolTip('<b>タイトル:</b><br>メッセージボックス上部のタイトルを変更します。')
+            self.text.setToolTip('<b>テキスト:</b><br>メッセージボックス内の文章を変更します。')
 
         # Set up handlers
         self.id.valueChanged.connect(self.HandleIdChanged)
@@ -394,11 +467,18 @@ class MessageEditor(QtWidgets.QWidget):
         self.text.textChanged.connect(self.HandleTextChanged)
 
         # Set up a layout
-        L = QtWidgets.QFormLayout()
-        L.addRow('ID:', self.id)
-        L.addRow('Title:', self.title)
-        L.addRow('Text:', self.text)
-        self.setLayout(L)
+        if MSLANG == 'English':
+            L = QtWidgets.QFormLayout()
+            L.addRow('ID:', self.id)
+            L.addRow('Title:', self.title)
+            L.addRow('Text:', self.text)
+            self.setLayout(L)
+        else:
+            L = QtWidgets.QFormLayout()
+            L.addRow('ID:', self.id)
+            L.addRow('タイトル:', self.title)
+            L.addRow('テキスト:', self.text)
+            self.setLayout(L)
 
         # Clear everything
         self.clear()
@@ -454,8 +534,6 @@ class MessageEditor(QtWidgets.QWidget):
         self.dataChanged.emit()
 
 
-
-
 # Check Duplicate IDs dialog
 class CheckDuplicateIDsDlg(QtWidgets.QDialog):
     """Dialog which checks for duplicate message IDs"""
@@ -484,13 +562,20 @@ class CheckDuplicateIDsDlg(QtWidgets.QDialog):
         IDs = sorted(IDs, key=lambda msg: msg[0])
 
         # Make a header label
-        head = QtWidgets.QLabel('The file has been scanned. Problems are listed below:')
-
+        if MSLANG == 'English':
+            head = QtWidgets.QLabel('The file has been scanned. Problems are listed below:')
+        else:
+            head = QtWidgets.QLabel('ファイルをスキャンしました。以下は問題個所の一覧です:')
         # Make a list widget
         listW = QtWidgets.QListWidget()
         listW.setSelectionMode(listW.NoSelection)
         for id in IDs:
             if id[1] > 1: listW.addItem('There are %d messages with ID %d' % (id[1], id[0]))
+
+        if VMode == 'Dark':
+            self.setStyleSheet(StyleSheet)
+        else:
+            pass
 
         # Make the buttonbox
         buttonBox = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)
@@ -503,10 +588,7 @@ class CheckDuplicateIDsDlg(QtWidgets.QDialog):
         L.addWidget(listW)
         L.addWidget(buttonBox)
         self.setLayout(L)
-        
-
-        
-
+    
 
 ################################################################
 ################################################################
@@ -528,53 +610,121 @@ class MainWindow(QtWidgets.QMainWindow):
         self.CreateMenubar()
 
         # Set window title and show the window
-        self.setWindowTitle('Newer Messages Editor')
+        self.setWindowTitle('Newer Messages Editor 1.3-mod')
         self.show()
+
+        if VMode == 'Dark':
+            self.setStyleSheet(StyleSheet)
+        else:
+            pass
 
     def CreateMenubar(self):
         """Sets up the menubar"""
         m = self.menuBar()
 
         # File Menu
-        f = m.addMenu('&File')
+        if MSLANG == 'English':
+            f = m.addMenu('&File')
 
-        newAct = f.addAction('New File...')
-        newAct.setShortcut('Ctrl+N')
-        newAct.triggered.connect(self.HandleNew)
+            newAct = f.addAction('New File...')
+            newAct.setShortcut('Ctrl+N')
+            newAct.triggered.connect(self.HandleNew)
 
-        openAct = f.addAction('Open File...')
-        openAct.setShortcut('Ctrl+O')
-        openAct.triggered.connect(self.HandleOpen)
+            openAct = f.addAction('Open File...')
+            openAct.setShortcut('Ctrl+O')
+            openAct.triggered.connect(self.HandleOpen)
 
-        self.saveAct = f.addAction('Save File')
-        self.saveAct.setShortcut('Ctrl+S')
-        self.saveAct.triggered.connect(self.HandleSave)
-        self.saveAct.setEnabled(False)
+            self.saveAct = f.addAction('Save File')
+            self.saveAct.setShortcut('Ctrl+S')
+            self.saveAct.triggered.connect(self.HandleSave)
+            self.saveAct.setEnabled(False)
 
-        self.saveAsAct = f.addAction('Save File As...')
-        self.saveAsAct.setShortcut('Ctrl+Shift+S')
-        self.saveAsAct.triggered.connect(self.HandleSaveAs)
-        self.saveAsAct.setEnabled(False)
+            self.saveAsAct = f.addAction('Save File As...')
+            self.saveAsAct.setShortcut('Ctrl+Shift+S')
+            self.saveAsAct.triggered.connect(self.HandleSaveAs)
+            self.saveAsAct.setEnabled(False)
 
-        f.addSeparator()
+            f.addSeparator()
 
-        self.checkAct = f.addAction('Check for Duplicate IDs...')
-        self.checkAct.setShortcut('Ctrl+I')
-        self.checkAct.triggered.connect(self.HandleCheckIDs)
-        self.checkAct.setEnabled(False)
+            self.checkAct = f.addAction('Check for Duplicate IDs...')
+            self.checkAct.setShortcut('Ctrl+I')
+            self.checkAct.triggered.connect(self.HandleCheckIDs)
+            self.checkAct.setEnabled(False)
 
-        f.addSeparator()
+            f.addSeparator()
 
-        exitAct = f.addAction('Exit')
-        exitAct.setShortcut('Ctrl+Q')
-        exitAct.triggered.connect(self.HandleExit)
+            exitAct = f.addAction('Exit')
+            exitAct.setShortcut('Ctrl+Q')
+            exitAct.triggered.connect(self.HandleExit)
+
+        else:
+            f = m.addMenu('&ファイル')
+
+            newAct = f.addAction('新規作成')
+            newAct.setShortcut('Ctrl+N')
+            newAct.triggered.connect(self.HandleNew)
+
+            openAct = f.addAction('ファイルを開く')
+            openAct.setShortcut('Ctrl+O')
+            openAct.triggered.connect(self.HandleOpen)
+
+            self.saveAct = f.addAction('保存')
+            self.saveAct.setShortcut('Ctrl+S')
+            self.saveAct.triggered.connect(self.HandleSave)
+            self.saveAct.setEnabled(False)
+
+            self.saveAsAct = f.addAction('名前を付けて保存')
+            self.saveAsAct.setShortcut('Ctrl+Shift+S')
+            self.saveAsAct.triggered.connect(self.HandleSaveAs)
+            self.saveAsAct.setEnabled(False)
+
+            f.addSeparator()
+
+            self.checkAct = f.addAction('Duplicate IDを調べる')
+            self.checkAct.setShortcut('Ctrl+I')
+            self.checkAct.triggered.connect(self.HandleCheckIDs)
+            self.checkAct.setEnabled(False)
+
+            f.addSeparator()
+
+            exitAct = f.addAction('閉じる')
+            exitAct.setShortcut('Ctrl+Q')
+            exitAct.triggered.connect(self.HandleExit)
+
+        # Setting Menu
+        if MSLANG == 'English':
+            s = m.addMenu('&Setting')
+
+            aboutAct = s.addAction('Language')
+            aboutAct.setShortcut('Ctrl+L')
+            aboutAct.triggered.connect(self.HandleLS)
+
+            aboutAct = s.addAction('Appearance')
+            aboutAct.triggered.connect(self.HandleVS)
+
+        else:
+            s = m.addMenu('&設定')
+
+            aboutAct = s.addAction('言語')
+            aboutAct.setShortcut('Ctrl+L')
+            aboutAct.triggered.connect(self.HandleLS)
+
+            aboutAct = s.addAction('外観モード')
+            aboutAct.triggered.connect(self.HandleVS)
 
         # Help Menu
-        h = m.addMenu('&Help')
+        if MSLANG == 'English':
+            h = m.addMenu('&Help')
 
-        aboutAct = h.addAction('About...')
-        aboutAct.setShortcut('Ctrl+H')
-        aboutAct.triggered.connect(self.HandleAbout)
+            aboutAct = h.addAction('About...')
+            aboutAct.setShortcut('Ctrl+H')
+            aboutAct.triggered.connect(self.HandleAbout)
+        else:
+            h = m.addMenu('&ヘルプ')
+
+            aboutAct = h.addAction('このソフトについて')
+            aboutAct.setShortcut('Ctrl+H')
+            aboutAct.triggered.connect(self.HandleAbout)
 
 
     def HandleNew(self):
@@ -586,7 +736,10 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def HandleOpen(self):
         """Handles file opening"""
-        fp = QtWidgets.QFileDialog.getOpenFileName(self, 'Open File', '', 'Binary Files (*.bin);;All Files (*)')[0]
+        if MSLANG == 'English':
+            fp = QtWidgets.QFileDialog.getOpenFileName(self, 'Open File', '', 'Binary Files (*.bin);;All Files (*)')[0]
+        else:
+            fp = QtWidgets.QFileDialog.getOpenFileName(self, 'ファイルを開く', '', 'バイナリファイル(*.bin);;すべてのファイル(*)')[0]            
         if fp == '': return
         self.fp = fp
 
@@ -622,7 +775,10 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def HandleSaveAs(self):
         """Handles saving to a new file"""
-        fp = QtWidgets.QFileDialog.getSaveFileName(self, 'Save File', '', 'Binary Files (*.bin);;All Files (*)')[0]
+        if MSLANG == 'English':
+            fp = QtWidgets.QFileDialog.getSaveFileName(self, 'Save File', '', 'Binary Files (*.bin);;All Files (*)')[0]
+        else:
+            fp = QtWidgets.QFileDialog.getSaveFileName(self, 'ファイルを保存', '', 'バイナリファイル(*.bin);;すべてのファイル(*)')[0]
         if fp == '': return
         self.fp = fp
 
@@ -641,10 +797,156 @@ class MainWindow(QtWidgets.QMainWindow):
         """Exits"""
         raise SystemExit
 
+# Added by wakanameko
+
+    def HandleEN(self):
+        if MSLANG == 'Japanese':
+            if VMode == 'Light':
+                DFile = open(STpath, 'w')
+                DFile.write("ENL")
+                DFile.close()
+            else:
+                DFile = open(STpath, 'w')
+                DFile.write("END")
+                DFile.close()
+        else:
+            pass
+
+    def HandleJP(self):
+        if MSLANG == 'English':
+            if VMode == 'Light':
+                DFile = open(STpath, 'w')
+                DFile.write("JPL")
+                DFile.close()
+            else:
+                DFile = open(STpath, 'w')
+                DFile.write("JPD")
+                DFile.close()
+        else:
+            pass
+
+    def HandleLS(self):
+        """Shows the About dialog"""
+        # Add Buttons
+        LangWindow = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.Ok)
+        #LangWindow = QtWidgets.QMdiSubWindow
+        if MSLANG == 'English':
+            self.ENTip = QtWidgets.QPushButton('English')
+            self.ENTip.setToolTip('<b>English:</b><br>Change language to English.')
+            self.ENTip.setHidden(False) 
+            self.JPTip = QtWidgets.QPushButton('Japanese')
+            self.JPTip.setToolTip('<b>Japanese:</b><br>Change language to Japanese.')
+        else:
+            self.ENTip = QtWidgets.QPushButton('英語')
+            self.ENTip.setToolTip('<b>英語:</b><br>言語を英語に変更します。')
+            self.ENTip.setHidden(False) 
+            self.JPTip = QtWidgets.QPushButton('日本語')
+            self.JPTip.setToolTip('<b>日本語:</b><br>言語を日本語に変更します。')
+        self.JPTip.setHidden(False) 
+        # layout
+        layout = QtWidgets.QVBoxLayout()
+        layout.addWidget(LangWindow)
+        layout = QtWidgets.QHBoxLayout() 
+        layout.addWidget(self.ENTip) 
+        layout.addWidget(self.JPTip) 
+
+        # Click Buttons
+        self.ENTip.clicked.connect(self.HandleEN)
+        self.JPTip.clicked.connect(self.HandleJP)
+
+        dlg = QtWidgets.QDialog(self)
+        if MSLANG == 'English':
+            dlg.setWindowTitle('Select Language')
+        else:
+            dlg.setWindowTitle('言語選択')
+        dlg.setLayout(layout)
+        dlg.setModal(True)
+        dlg.setMinimumWidth(384)
+                
+        if VMode == 'Dark':
+            self.setStyleSheet(StyleSheet)
+        else:
+            pass
+
+        dlg.exec_()
+
+    def HandleWH(self):
+        if VMode == 'Dark':
+            if MSLANG == 'English':
+                DFile = open(STpath, 'w')
+                DFile.write("ENL")
+                DFile.close()
+            else:
+                DFile = open(STpath, 'w')
+                DFile.write("JPL")
+                DFile.close()
+        else:
+            pass
+
+    def HandleDR(self):
+        if VMode == 'Light':
+            if MSLANG == 'English':
+                DFile = open(STpath, 'w')
+                DFile.write("END")
+                DFile.close()
+            else:
+                DFile = open(STpath, 'w')
+                DFile.write("JPD")
+                DFile.close()
+        else:
+            pass
+
+    def HandleVS(self):
+        """Shows the About dialog"""
+        # Add Buttons
+        VSWindow = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.Ok)
+        #VSWindow = QtWidgets.QMdiSubWindow
+        if MSLANG == 'English':
+            self.WHTip = QtWidgets.QPushButton('Light Mode')
+            self.WHTip.setToolTip('<b>Light Mode:</b><br>Change the appearance to White mode.')
+            self.WHTip.setHidden(False) 
+            self.DRTip = QtWidgets.QPushButton('Dark Mode')
+            self.DRTip.setToolTip('<b>Dark Mode:</b><br>Change the appearance to dark mode.')
+        else:
+            self.WHTip = QtWidgets.QPushButton('ライトモード')
+            self.WHTip.setToolTip('<b>ライトモード:</b><br>外観をライトモードに変更します。')
+            self.WHTip.setHidden(False) 
+            self.DRTip = QtWidgets.QPushButton('ダークモード')
+            self.DRTip.setToolTip('<b>ダークモード:</b><br>外観をダークモードに変更します。')
+        self.DRTip.setHidden(False) 
+        # layout
+        layout = QtWidgets.QVBoxLayout()
+        layout.addWidget(VSWindow)
+        layout = QtWidgets.QHBoxLayout() 
+        layout.addWidget(self.WHTip) 
+        layout.addWidget(self.DRTip) 
+
+        # Click Buttons
+        self.WHTip.clicked.connect(self.HandleWH)
+        self.DRTip.clicked.connect(self.HandleDR)
+
+        dlg = QtWidgets.QDialog(self)
+        if MSLANG == 'English':
+            dlg.setWindowTitle('Appearance')
+        else:
+            dlg.setWindowTitle('外観モード')
+        dlg.setLayout(layout)
+        dlg.setModal(True)
+        dlg.setMinimumWidth(384)
+                
+        if VMode == 'Dark':
+            self.setStyleSheet(StyleSheet)
+        else:
+            pass
+
+        dlg.exec_()
+
+# finish
+
     def HandleAbout(self):
         """Shows the About dialog"""
         try: readme = open('readme.md', 'r').read()
-        except: readme = 'Newer Messages Editor %s by RoadrunnerWMC\n(No readme.md found!)\nLicensed under GPL 3' % version
+        except: readme = 'Newer Messages Editor %s by RoadrunnerWMC\nmod by @wakanameko2\n(No readme.md found!)\nLicensed under GPL 3' % version
 
         txtedit = QtWidgets.QPlainTextEdit(readme)
         txtedit.setReadOnly(True)
@@ -654,13 +956,23 @@ class MainWindow(QtWidgets.QMainWindow):
         layout = QtWidgets.QVBoxLayout()
         layout.addWidget(txtedit)
         layout.addWidget(buttonBox)
-
-        dlg = QtWidgets.QDialog()
-        dlg.setWindowTitle('About Newer Messages Editor')
+        
+        dlg = QtWidgets.QDialog(self)
+        if MSLANG == 'English':
+            dlg.setWindowTitle('About Newer Messages Editor')
+        else:
+            dlg.setWindowTitle('Newer Messages Editorについて')
         dlg.setLayout(layout)
         dlg.setModal(True)
         dlg.setMinimumWidth(384)
+        
+        if VMode == 'Dark':
+            self.setStyleSheet(StyleSheet)
+        else:
+            pass
+
         buttonBox.accepted.connect(dlg.accept)
+
         dlg.exec_()
 
 
