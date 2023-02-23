@@ -1,5 +1,4 @@
-# Newer Messages Editor
-(1.3-mod)
+# Newer Messages Editor 1.3-Mod
 
 ----------------------------------------------------------------
 
