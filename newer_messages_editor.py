@@ -800,6 +800,20 @@ class MainWindow(QtWidgets.QMainWindow):
 # Added by wakanameko
 
     def HandleEN(self):
+        with open(f"{s}/data.txt", "r") as f:
+        for line in f:
+            if "EN" in line:
+                MSLANG = 'English'
+                print('Selected EN!')
+            else:
+                MSLANG = 'Japanese'
+                print('Selected JP!')
+            if "L" in line:
+                VMode = 'Light'
+                print('Selected Light!')
+            else:
+                VMode = 'Dark'
+                print('Selected Dark!')
         if MSLANG == 'Japanese':
             if VMode == 'Light':
                 DFile = open(STpath, 'w')
@@ -813,6 +827,20 @@ class MainWindow(QtWidgets.QMainWindow):
             pass
 
     def HandleJP(self):
+        with open(f"{s}/data.txt", "r") as f:
+        for line in f:
+            if "EN" in line:
+                MSLANG = 'English'
+                print('Selected EN!')
+            else:
+                MSLANG = 'Japanese'
+                print('Selected JP!')
+            if "L" in line:
+                VMode = 'Light'
+                print('Selected Light!')
+            else:
+                VMode = 'Dark'
+                print('Selected Dark!')
         if MSLANG == 'English':
             if VMode == 'Light':
                 DFile = open(STpath, 'w')
@@ -871,6 +899,20 @@ class MainWindow(QtWidgets.QMainWindow):
         dlg.exec_()
 
     def HandleWH(self):
+        with open(f"{s}/data.txt", "r") as f:
+        for line in f:
+            if "EN" in line:
+                MSLANG = 'English'
+                print('Selected EN!')
+            else:
+                MSLANG = 'Japanese'
+                print('Selected JP!')
+            if "L" in line:
+                VMode = 'Light'
+                print('Selected Light!')
+            else:
+                VMode = 'Dark'
+                print('Selected Dark!')
         if VMode == 'Dark':
             if MSLANG == 'English':
                 DFile = open(STpath, 'w')
@@ -883,7 +925,21 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             pass
 
-    def HandleDR(self):
+    def HandleDR(self):        
+        with open(f"{s}/data.txt", "r") as f:
+        for line in f:
+            if "EN" in line:
+                MSLANG = 'English'
+                print('Selected EN!')
+            else:
+                MSLANG = 'Japanese'
+                print('Selected JP!')
+            if "L" in line:
+                VMode = 'Light'
+                print('Selected Light!')
+            else:
+                VMode = 'Dark'
+                print('Selected Dark!')
         if VMode == 'Light':
             if MSLANG == 'English':
                 DFile = open(STpath, 'w')
