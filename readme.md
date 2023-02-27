@@ -1,4 +1,4 @@
-# Newer Messages Editor 1.3-Mod
+# Newer Messages Editor 1.3-Mod (test branch)
 
 ----------------------------------------------------------------
 
